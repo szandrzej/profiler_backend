@@ -12,8 +12,9 @@ var Entries       = require('../models').EndpointEntry;
 
 /* GET auth listing. */
 router.post('/:slug', saveEndpointEntry);
-router.get('/', getAllEntries);
-router.post('/', getEntryInfo);
+router.get('/list', getAllEntries);
+router.get('/dashboard', getDashboard);
+router.post('/endpoint/info', getEntryInfo);
 
 function saveEndpointEntry(req, res, next){
     async.waterfall(
@@ -62,6 +63,81 @@ function saveEndpointEntry(req, res, next){
     );
 }
 
+function getDashboard(req, res, next){
+    var queries = {
+        requestInTime: function (callback) {
+            sequelize.query('SELECT createdAt AS time , count(*) AS quantity ' +
+                'FROM EndpointEntries ' +
+                'WHERE slug = :slug ' +
+                'GROUP BY DAY(createdAt)', {
+                type: sequelize.QueryTypes.SELECT,
+                replacements: {
+                    slug: req.user.slug
+                }
+            }).then(function (result) {
+                callback(null, result);
+            });
+        },
+        countEndpoints: function(callback){
+            sequelize.query('SELECT count(DISTINCT path) AS endpoints ' +
+                'FROM EndpointEntries ' +
+                'WHERE slug = :slug', {
+                type: sequelize.QueryTypes.SELECT,
+                replacements: {
+                    slug: req.user.slug
+                }
+            }).then(function (result) {
+                callback(null, result[0].endpoints);
+            });
+        },
+        count500s: function(callback){
+            sequelize.query('SELECT count(*) AS quantity ' +
+                'FROM EndpointEntries ' +
+                'WHERE slug = :slug AND code = 500', {
+                type: sequelize.QueryTypes.SELECT,
+                replacements: {
+                    slug: req.user.slug
+                }
+            }).then(function (result) {
+                callback(null, result[0].quantity);
+            });
+        },
+        codeProcent: function (callback) {
+            sequelize.query('SELECT code, COUNT(*) AS quantity ' +
+                'FROM EndpointEntries ' +
+                'WHERE slug = :slug ' +
+                'GROUP BY code', {
+                type: sequelize.QueryTypes.SELECT,
+                replacements: {
+                    slug: req.user.slug
+                }
+            }).then(function (result) {
+                callback(null, result);
+            });
+        }
+    };
+
+    async.parallel({
+        open: queries.requestInTime,
+        endpoints: queries.countEndpoints,
+        code500s: queries.count500s,
+        procent: queries.codeProcent
+    }, function (err, results) {
+        if (err) {
+            next(err);
+        } else {
+            res.body = {
+                code500s: results.code500s,
+                endpoints: results.endpoints,
+                open: results.open,
+                procent: results.procent
+            };
+            res.resCode = 200;
+            next();
+        }
+    });
+}
+
 function getAllEntries(req, res, next){
     async.waterfall([
         function(next) {
@@ -95,7 +171,6 @@ function getAllEntries(req, res, next){
                 }
                 callback(null);
             }, function(err){
-                console.log(paths);
                 next(err, paths);
             });
         }
@@ -126,7 +201,6 @@ function getEntryInfo(req, res, next) {
                     method: method
                 }
             }).then(function (result) {
-                console.log(result);
                 callback(null, result);
             });
         },
@@ -135,6 +209,7 @@ function getEntryInfo(req, res, next) {
                 'FROM EndpointEntries ' +
                 'WHERE slug = :slug AND path = :path AND method = :method ' + (code ? 'AND code = :code ' : ' ') +
                 'GROUP BY DAY(createdAt)', {
+                type: sequelize.QueryTypes.SELECT,
                 replacements: {
                     code: code,
                     path: path,
@@ -150,6 +225,7 @@ function getEntryInfo(req, res, next) {
                 'FROM EndpointEntries ' +
                 'WHERE slug = :slug AND path = :path AND method = :method ' + (code ? 'AND code = :code ' : ' ') +
                 'GROUP BY MONTH(createdAt)', {
+                type: sequelize.QueryTypes.SELECT,
                 replacements: {
                     code: code,
                     path: path,
@@ -165,6 +241,7 @@ function getEntryInfo(req, res, next) {
                 'FROM EndpointEntries ' +
                 'WHERE slug = :slug AND path = :path AND method = :method ' +
                 'GROUP BY code', {
+                type: sequelize.QueryTypes.SELECT,
                 replacements: {
                     code: code,
                     path: path,
@@ -186,8 +263,8 @@ function getEntryInfo(req, res, next) {
                 next(err);
             } else {
                 res.body = {
-                    open: results.open[0],
-                    average: results.average[0]
+                    open: results.open,
+                    average: results.average
                 };
                 res.resCode = 200;
                 next();
@@ -207,9 +284,9 @@ function getEntryInfo(req, res, next) {
                     next(err);
                 } else {
                     res.body = {
-                        open: results.open[0],
-                        average: results.average[0],
-                        procent: results.procent[0]
+                        open: results.open,
+                        average: results.average,
+                        procent: results.procent
                     };
                     res.resCode = 200;
                     next();

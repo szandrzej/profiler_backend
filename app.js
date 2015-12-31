@@ -17,8 +17,6 @@ var authConfig = require('./configuration/auth');
 
 var app = express();
 
-
-
 app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());

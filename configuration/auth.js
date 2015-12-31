@@ -9,7 +9,7 @@ module.exports = {
     init: function(app){
 
         app.use(passport.initialize());
-        app.use('/api', passport.authenticate('bearer', { session: false }),
+        app.use('/api/', passport.authenticate('bearer', { session: false }),
             function(req, res, next) {
                 next();
             }

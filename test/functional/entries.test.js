@@ -19,33 +19,48 @@ describe('Entry', function () {
         });
     });
 
-    describe('[/api/:slug]', function (done) {
+    describe('[/api/list]', function (done) {
         it('should return 200 with authorization', function (done) {
             request(app)
-                .get(prefix + '/')
+                .get(prefix + '/list')
                 .set('Content-Type', 'application/json')
                 .set('Authorization',' Bearer tokenofadminm7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX9')
                 .send()
                 .expect(200)
                 .end(done);
         });
-
     });
 
-    describe('[/api/]', function (done) {
+    describe('[/api/dashboard]', function (done) {
+        it('should return 200 with authorization', function (done) {
+            request(app)
+                .get(prefix + '/dashboard')
+                .set('Content-Type', 'application/json')
+                .set('Authorization',' Bearer tokenofadminm7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX9')
+                .send()
+                .expect(function(res){
+                    var array = res.body.extras;
+                    expect(array).to.contain.all.keys(['open', 'procent', 'endpoints', 'code500s']);
+                })
+                .end(done);
+        });
+    });
+
+    describe('[/api/endpoint/info]', function (done) {
 
         it('should return entry in extras', function (done) {
             request(app)
-                .post(prefix + '/')
+                .post(prefix + '/endpoint/info')
                 .set('Content-Type', 'application/json')
-                .set('Authorization', 'Bearer tokenofuserym7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX8')
+                .set('Authorization', 'Bearer tokenofadminm7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX9')
                 .send({
                     code: 204,
-                    path: '/auth/:id/:code'
+                    path: '/auth/:id/:code',
+                    method: 'POST'
                 })
                 .expect(function(res){
                     var array = res.body.extras;
-                    expect(array).to.have.key('open');
+                    expect(array).to.contain.all.keys(['open', 'average']);
                 })
                 .end(done);
         });

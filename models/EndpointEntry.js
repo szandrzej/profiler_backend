@@ -1,5 +1,7 @@
 "use strict";
 
+var now = new Date();
+
 module.exports = function(sequelize, DataTypes) {
     var EndpointEntry = sequelize.define("EndpointEntry", {
             slug:
@@ -39,6 +41,13 @@ module.exports = function(sequelize, DataTypes) {
             }
         },
         {
+            defaultScope: {
+                where:{
+                    createdAt: {
+                        $gt: now.setDate(now.getDate() - 180)
+                    }
+                }
+            },
             indexes: [
                 {
                     fields: ['slug'],
