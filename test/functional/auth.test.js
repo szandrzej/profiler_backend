@@ -19,6 +19,33 @@ describe('AUTH', function () {
         });
     });
 
+    describe('[/auth/register', function(done){
+       it('should return 400 without all fields', function (done){
+           request(app)
+               .post(prefix + '/register')
+               .set('Content-Type', 'application/json')
+               .send({
+                   username: 'testapi2',
+                   pssword: 'qwerty'
+               })
+               .expect(400)
+               .end(done);
+       });
+
+        it('should return 201 with all fields', function (done){
+            request(app)
+                .post(prefix + '/register')
+                .set('Content-Type', 'application/json')
+                .send({
+                    username: 'testapi2',
+                    password: 'qwerty',
+                    slug: 'test.api.2'
+                })
+                .expect(201)
+                .end(done);
+        })
+    });
+
     describe('[/auth/login]', function (done) {
 
         it('should return 400 without password or username', function (done) {

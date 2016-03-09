@@ -124,6 +124,7 @@ function getDashboard(req, res, next){
         procent: queries.codeProcent
     }, function (err, results) {
         if (err) {
+            console.log(err);
             next(err);
         } else {
             res.body = {

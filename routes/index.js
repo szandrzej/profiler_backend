@@ -1,15 +1,16 @@
 var express = require('express');
 var router = express.Router();
 
-var async       = require('async');
-var Validator   = require('../helpers/requestValidator');
-var Error       = require('../helpers/errorCreator');
-var Users       = require('../models').User;
-var Tokens      = require('../models').Token;
+var async = require('async');
+var Validator = require('../helpers/requestValidator');
+var Error = require('../helpers/errorCreator');
+var Users = require('../models').User;
+var Tokens = require('../models').Token;
 
 /* GET home page. */
 
 router.post('/login', loginUser);
+router.post('/register', registerApi);
 
 function loginUser(req, res, next) {
     async.waterfall([
@@ -70,5 +71,46 @@ function loginUser(req, res, next) {
         }
     });
 };
+
+function registerApi(req, res, next) {
+    async.waterfall([
+        function (next) {
+            Validator.checkRequiredFields(req.body, ['username', 'password', 'slug'], next);
+        },
+        function (result, next) {
+            Users.create({
+                username: result.username,
+                password: result.password,
+                slug: result.slug,
+                role: 'user'
+            }).then(function (user) {
+                console.log(user.get());
+                Tokens.create({}).then(function (token) {
+                    token.setUser(user)
+                        .then(function (token) {
+                                next(null, token.get('accessToken'));
+                            }
+                        );
+                })
+            });
+        },
+    ], function (err, result) {
+        if (err) {
+            if (err.errors) {
+                next(Error.createError({}, 'error.bad_request', 400));
+            } else {
+                next(err);
+            }
+        } else {
+            res.body = {
+                token: {
+                    number: result
+                }
+            };
+            res.resCode = 201;
+            next();
+        }
+    });
+}
 
 module.exports = router;

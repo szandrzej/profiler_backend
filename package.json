@@ -1,12 +1,12 @@
 {
-  "name": "GeocoachRest",
+  "name": "ApiProfiler",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
     "test": "node_modules/.bin/mocha test/ --recursive ",
     "run": "nodemon ./bin/www",
-    "super-run": "forever ./bin/www",
+    "super-run": "forever ./bin/www --minUptime=500 --spinSleepTime=1500",
     "create-user": "node console/createUser",
     "clear-database": "node console/dropDatabase",
     "load-dev-fixtures": "node console/load-dev-fixtures"

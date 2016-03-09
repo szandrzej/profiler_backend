@@ -1,7 +1,7 @@
 module.exports = {
   database: {
-    username: "root",
-    password: "devel",
+    username: "dbuser",
+    password: "123",
     database: "api_profiler_test",
     host: 'localhost',
     logging: false,
