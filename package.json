@@ -9,7 +9,8 @@
     "super-run": "forever ./bin/www --minUptime=500 --spinSleepTime=1500",
     "create-user": "node console/createUser",
     "clear-database": "node console/dropDatabase",
-    "load-dev-fixtures": "node console/load-dev-fixtures"
+    "load-dev-fixtures": "node console/load-dev-fixtures",
+    "sync": "node console/syncDatabase"
   },
   "dependencies": {
     "async": "^1.3.0",

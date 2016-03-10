@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var compress = require('compression');
 
+var tags = require('./routes/tags');
 var routes = require('./routes/index');
 var entries = require('./routes/entries');
 
@@ -27,7 +28,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 authConfig.init(app);
 
 app.use('/auth', routes);
-app.use('/api', entries);
+app.use('/api/entries', entries);
+app.use('/api/tags', tags);
 
 app.use(function(req, res, next){
     var finalData = {
