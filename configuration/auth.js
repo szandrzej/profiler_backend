@@ -9,29 +9,38 @@ module.exports = {
     init: function(app){
 
         app.use(passport.initialize());
-        app.use('/api/', passport.authenticate('bearer', { session: false }),
+        app.use('/api', passport.authenticate('bearer', { session: false }),
             function(req, res, next) {
                 next();
             }
         );
         passport.use(new BearerStrategy(
                 function(token, done) {
+                    var token_final = token;
                     Token.findOne({
                         where: { accessToken: token },
                         include: [{
-                            model: User
+                            model: User,
+                            as: 'user'
                         }]
-                    })
-                        .then(function (result) {
+                    }).then(function (result) {
                             if(!result){
-                                done(Error.createError({}, 'error.invalid_token', 401), false);
+                                User.find({
+                                    where: { apiKey: token_final},
+                                }).then(function(user){
+                                    if(!user){
+                                        done(Error.createError({}, 'error.invalid_token', 401), false);
+                                    } else{
+                                        done(null, user);
+                                    }
+                                });
                             }
                             else {
                                 var token = result;
                                 if (!token) {
                                     done(null, false);
                                 }
-                                done(null, token.User);
+                                done(null, token.user);
                             }
                         })
                         .catch(function(err){

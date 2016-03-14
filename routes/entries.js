@@ -64,15 +64,21 @@ function saveEndpointEntry(req, res, next) {
 }
 
 function getDashboard(req, res, next) {
+    var date = new Date(new Date().getTime() - 60 * 1000 * 60 * 60 * 24);
     var queries = {
         requestInTime: function (callback) {
-            sequelize.query('SELECT createdAt AS time , count(*) AS quantity ' +
-                'FROM EndpointEntries ' +
-                'WHERE slug = :slug ' +
-                'GROUP BY DAY(createdAt)', {
+            sequelize.query('SELECT d.date AS time , IF(e.id, count(*), 0) as count ' +
+                'FROM EndpointEntries e ' +
+                'RIGHT JOIN (SELECT * FROM DateRefs f WHERE f.date > :date GROUP BY DAYOFYEAR(f.date)) d ON DAYOFYEAR(d.date) = DAYOFYEAR(e.date) ' +
+                'WHERE e.slug =  :slug ' +
+                'AND e.date > :date ' +
+                'OR e.slug IS NULL ' +
+                'GROUP BY DAYOFYEAR( d.date ) ' +
+                'ORDER BY d.date ASC', {
                 type: sequelize.QueryTypes.SELECT,
                 replacements: {
-                    slug: req.user.slug
+                    slug: req.user.slug,
+                    date: date
                 }
             }).then(function (result) {
                 callback(null, result);
@@ -124,7 +130,6 @@ function getDashboard(req, res, next) {
         procent: queries.codeProcent
     }, function (err, results) {
         if (err) {
-            console.log(err);
             next(err);
         } else {
             res.body = {
@@ -152,13 +157,6 @@ function getAllEntries(req, res, next) {
                         slug: req.user.slug
                     }
                 }
-                //Entries.count({
-                //    attributes: ['path', 'method', 'code'],
-                //    where: {
-                //        slug: req.user.slug
-                //    },
-                //    group: ['path', 'method', 'code' ],
-                //    order: ['path ASC', 'method ASC', 'code ASC']
             ).then(function (result) {
                 if (result) {
                     next(null, result);
@@ -168,7 +166,6 @@ function getAllEntries(req, res, next) {
             })
         },
         function (result, next) {
-            console.log(result);
             var paths = {};
             async.map(result, function (object, callback) {
                 if (paths.hasOwnProperty(object.path)) {
@@ -201,13 +198,21 @@ function getAllEntries(req, res, next) {
 }
 
 function getEntryInfo(req, res, next) {
+    var date = new Date(new Date().getTime() - 60 * 1000 * 60 * 60 * 24);
     var path = req.body.path;
     var code = req.body.code;
     var method = req.body.method;
-    var processTimeResolution = req.body.process_resolution || "month";
+    var processTimeResolution = req.body.process_resolution || "day";
 
-    if (["day", "month", "hour", "minute"].indexOf(processTimeResolution) != -1) {
-
+    if (["day", "week"].indexOf(processTimeResolution) == -1) {
+        next(Error.createError({}, "error.bad_request", 400));
+        return;
+    } else{
+        if(processTimeResolution === "day"){
+            processTimeResolution = "DAYOFYEAR";
+        } else if (processTimeResolution === "week"){
+            processTimeResolution = "WEEK"
+        }
     }
 
     var queries = {
@@ -223,32 +228,42 @@ function getEntryInfo(req, res, next) {
             });
         },
         openInTime: function (callback) {
-            sequelize.query('SELECT createdAt AS time , count(*) AS quantity ' +
-                'FROM EndpointEntries ' +
-                'WHERE slug = :slug AND path = :path AND method = :method ' + (code ? 'AND code = :code ' : ' ') +
-                'GROUP BY DAY(createdAt)', {
+            sequelize.query('SELECT d.date AS time , IF(e.id, count(*), 0) as count ' +
+                'FROM EndpointEntries e ' +
+                'RIGHT JOIN (SELECT * FROM DateRefs f WHERE f.date > :date GROUP BY '+ processTimeResolution + '(f.date)) d ON '+ processTimeResolution + '(d.date) = '+ processTimeResolution + '(e.date) ' +
+                'WHERE e.slug = :slug AND e.path = :path AND e.method = :method ' + (code ? 'AND e.code = :code ' : ' ') +
+                'AND e.date > :date ' +
+                'OR e.slug IS NULL ' +
+                'GROUP BY '+ processTimeResolution + '(d.date) ' +
+                'ORDER BY d.date ASC', {
                 type: sequelize.QueryTypes.SELECT,
                 replacements: {
                     code: code,
                     path: path,
                     slug: req.user.slug,
-                    method: method
+                    method: method,
+                    date: date
                 }
             }).then(function (result) {
                 callback(null, result);
             });
         },
         averageInTime: function (callback) {
-            sequelize.query('SELECT createdAt AS time, AVG(processTime) AS averageTime ' +
-                'FROM EndpointEntries ' +
-                'WHERE slug = :slug AND path = :path AND method = :method ' + (code ? 'AND code = :code ' : ' ') +
-                'GROUP BY ' + processTimeResolution + '(createdAt)', {
+            sequelize.query('SELECT d.date AS time , IF(e.id, AVG(e.processTime), 0) as average ' +
+                'FROM EndpointEntries e ' +
+                'RIGHT JOIN (SELECT * FROM DateRefs f WHERE f.date > :date GROUP BY '+ processTimeResolution + '(f.date)) d ON '+ processTimeResolution + '(d.date) = '+ processTimeResolution + '(e.date) ' +
+                'WHERE e.slug = :slug AND e.path = :path AND e.method = :method ' + (code ? 'AND e.code = :code ' : ' ') +
+                'AND e.date > :date ' +
+                'OR e.slug IS NULL ' +
+                'GROUP BY ' + processTimeResolution + '(d.date) ' +
+                'ORDER BY d.date ASC', {
                 type: sequelize.QueryTypes.SELECT,
                 replacements: {
                     code: code,
                     path: path,
                     slug: req.user.slug,
-                    method: method
+                    method: method,
+                    date: date
                 }
             }).then(function (result) {
                 callback(null, result);

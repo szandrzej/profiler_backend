@@ -8,7 +8,7 @@ var models = require("../../models/index");
 
 describe('Entry', function () {
 
-    var prefix = '/api';
+    var prefix = '/api/entries';
 
     before(function (done) {
         models.sequelize.sync({force: true}).then(function () {
@@ -19,7 +19,7 @@ describe('Entry', function () {
         });
     });
 
-    describe('[/api/list]', function (done) {
+    describe('[/api/entries/list]', function (done) {
         it('should return 200 with authorization', function (done) {
             request(app)
                 .get(prefix + '/list')
@@ -31,7 +31,7 @@ describe('Entry', function () {
         });
     });
 
-    describe('[/api/dashboard]', function (done) {
+    describe('[/api/entries/dashboard]', function (done) {
         it('should return 200 with authorization', function (done) {
             request(app)
                 .get(prefix + '/dashboard')
@@ -46,7 +46,7 @@ describe('Entry', function () {
         });
     });
 
-    describe('[/api/endpoint/info]', function (done) {
+    describe('[/api/entries/endpoint/info]', function (done) {
 
         it('should return entry in extras', function (done) {
             request(app)
@@ -66,7 +66,7 @@ describe('Entry', function () {
         });
     });
 
-    describe('[/api/:slug]', function (done) {
+    describe('[/api/entries/:slug]', function (done) {
 
         it('should return 401 without authorization', function (done) {
             request(app)
@@ -101,7 +101,7 @@ describe('Entry', function () {
             request(app)
                 .post(prefix + '/geocoach_api2')
                 .set('Content-Type', 'application/json')
-                .set('Authorization', 'Bearer tokenofuserym7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX8')
+                .set('Authorization', 'Bearer AjsB0J5NTmSqSGy3fHmkgODlJJZXgTwf7LmOsh5gZigO77UvzjyGCXwVMyQsuEgts3xGif1GOiuRJu4jcN8mKPwKKc5B55adc8oS3FNYSNiRtVbm1ujp4kOFUFWiDH10')
                 .send({
                     processTime: 15,
                     path: '/v1/api/:id/:nanana',
@@ -116,7 +116,7 @@ describe('Entry', function () {
             request(app)
                 .post(prefix + '/geocoach_api2')
                 .set('Content-Type', 'application/json')
-                .set('Authorization', 'Bearer tokenofuserym7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX8')
+                .set('Authorization', 'Bearer AjsB0J5NTmSqSGy3fHmkgODlJJZXgTwf7LmOsh5gZigO77UvzjyGCXwVMyQsuEgts3xGif1GOiuRJu4jcN8mKPwKKc5B55adc8oS3FNYSNiRtVbm1ujp4kOFUFWiDH10')
                 .send({
                     pressTime: 15,
                     path: '/v1/api/:id/:nanana',
@@ -132,7 +132,7 @@ describe('Entry', function () {
             request(app)
                 .post(prefix + '/geocoach_api')
                 .set('Content-Type', 'application/json')
-                .set('Authorization', 'Bearer tokenofuserym7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX8')
+                .set('Authorization', 'Bearer AjsB0J5NTmSqSGy3fHmkgODlJJZXgTwf7LmOsh5gZigO77UvzjyGCXwVMyQsuEgts3xGif1GOiuRJu4jcN8mKPwKKc5B55adc8oS3FNYSNiRtVbm1ujp4kOFUFWiDH10')
                 .send({
                     processTime: 15,
                     path: '/v1/api/:id/:nanana',
@@ -147,7 +147,7 @@ describe('Entry', function () {
             request(app)
                 .post(prefix + '/geocoach_api2')
                 .set('Content-Type', 'application/json')
-                .set('Authorization', 'Bearer tokenofuserym7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX8')
+                .set('Authorization', 'Bearer AjsB0J5NTmSqSGy3fHmkgODlJJZXgTwf7LmOsh5gZigO77UvzjyGCXwVMyQsuEgts3xGif1GOiuRJu4jcN8mKPwKKc5B55adc8oS3FNYSNiRtVbm1ujp4kOFUFWiDH10')
                 .send({
                     processTime: 15,
                     path: '/v1/api/:id/:nanana',
@@ -162,7 +162,7 @@ describe('Entry', function () {
             request(app)
                 .post(prefix + '/geocoach_api2')
                 .set('Content-Type', 'application/json')
-                .set('Authorization', 'Bearer tokenofuserym7R9MnrUotoNRtnOBZ6gyh7s2XadPNRcsYKUlCdQpSYtDCX8')
+                .set('Authorization', 'Bearer AjsB0J5NTmSqSGy3fHmkgODlJJZXgTwf7LmOsh5gZigO77UvzjyGCXwVMyQsuEgts3xGif1GOiuRJu4jcN8mKPwKKc5B55adc8oS3FNYSNiRtVbm1ujp4kOFUFWiDH10')
                 .send({
                     processTime: 15,
                     path: '/v1/api/:id/:nanana',

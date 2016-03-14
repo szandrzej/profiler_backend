@@ -6,11 +6,13 @@
     "start": "node ./bin/www",
     "test": "node_modules/.bin/mocha test/ --recursive ",
     "run": "nodemon ./bin/www",
+    "run-prod": "NODE_ENV=production nodemon ./bin/www",
     "super-run": "forever ./bin/www --minUptime=500 --spinSleepTime=1500",
     "create-user": "node console/createUser",
     "clear-database": "node console/dropDatabase",
     "load-dev-fixtures": "node console/load-dev-fixtures",
-    "sync": "node console/syncDatabase"
+    "sync": "node console/syncDatabase",
+    "create-data-refs": "node console/fillDateRefs"
   },
   "dependencies": {
     "async": "^1.3.0",

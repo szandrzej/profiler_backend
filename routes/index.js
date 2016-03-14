@@ -18,18 +18,10 @@ function loginUser(req, res, next) {
             Validator.checkRequiredFields(req.body, ['username', 'password'], next);
         },
         function (result, next) {
-            Users.find({
-                attributes: [
-                    'username', 'password', 'slug'
-                ],
+            Users.findOne({
                 where: {
                     username: result.username
-                },
-                include: [
-                    {
-                        model: Tokens
-                    }
-                ]
+                }
             }).then(function (user) {
                 if (!user) {
                     next(Error.createError({}, 'error.user_not_found', 404));
@@ -50,6 +42,13 @@ function loginUser(req, res, next) {
                     }
                 }
             });
+        },
+        function (user, next) {
+            Tokens.create({}).then(function (token) {
+                token.setUser(user).then(function (token) {
+                    next(null, {token: token, user: user});
+                });
+            })
         }
     ], function (err, result) {
         if (err) {
@@ -61,16 +60,16 @@ function loginUser(req, res, next) {
         } else {
             res.body = {
                 user: {
-                    token: result.get('Token').get('accessToken'),
-                    username: result.get('username'),
-                    slug: result.get('slug')
+                    token: result.token.get('accessToken'),
+                    username: result.user.get('username'),
+                    slug: result.user.get('slug')
                 }
             };
             res.resCode = 200;
             next();
         }
     });
-};
+}
 
 function registerApi(req, res, next) {
     async.waterfall([
@@ -84,14 +83,7 @@ function registerApi(req, res, next) {
                 slug: result.slug,
                 role: 'user'
             }).then(function (user) {
-                console.log(user.get());
-                Tokens.create({}).then(function (token) {
-                    token.setUser(user)
-                        .then(function (token) {
-                                next(null, token.get('accessToken'));
-                            }
-                        );
-                })
+                next(null, user.get('apiKey'));
             });
         },
     ], function (err, result) {

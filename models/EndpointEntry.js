@@ -2,20 +2,21 @@
 
 var now = new Date();
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
     var EndpointEntry = sequelize.define("EndpointEntry", {
-            slug:
-            {
+            slug: {
                 type: DataTypes.STRING(24),
                 allowNull: false
             },
-            path:
-            {
+            date: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+            path: {
                 type: DataTypes.STRING(24),
                 allowNull: false
             },
-            method:
-            {
+            method: {
                 type: DataTypes.STRING(10),
                 allowNull: false,
                 validate: {
@@ -24,8 +25,7 @@ module.exports = function(sequelize, DataTypes) {
                     ]
                 }
             },
-            code:
-            {
+            code: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 validate: {
@@ -34,17 +34,16 @@ module.exports = function(sequelize, DataTypes) {
                     ]
                 }
             },
-            processTime:
-            {
+            processTime: {
                 type: DataTypes.INTEGER,
                 allowNull: false
             }
         },
         {
             defaultScope: {
-                where:{
-                    createdAt: {
-                        $gt: now.setDate(now.getDate() - 180)
+                where: {
+                    date: {
+                        $gt: now.setDate(now.getDate() - 360)
                     }
                 }
             },
@@ -58,6 +57,15 @@ module.exports = function(sequelize, DataTypes) {
                     order: 'ASC'
                 }
             ],
+            timestamps: false,
+            hooks: {
+                beforeValidate: function(entity){
+                    entity.date = new Date();
+                },
+                beforeCreate: function (entity) {
+                    entity.date.setSeconds(0);
+                }
+            }
         }
     );
     return EndpointEntry;

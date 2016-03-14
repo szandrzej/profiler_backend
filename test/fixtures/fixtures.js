@@ -7,6 +7,8 @@ module.exports = [
             id: 1,
             username: 'geocoach_api',
             password: 'qwerty',
+            apiKey: 'AjsB0J5NTmSqSGy3fHmkgODlJJZXgTwf7LmOsh5gZigO77UvzjyGCXwVMyQsuEgts3xGif1GOiuRJu4jcN8mKPwKKc5B55adc8oS3FNYSNiRtVbm1ujp4kOFUFWiDHO9',
+            expirationDate: new Date((date.getTime() + 1000*60*60*24*30)),
             role: 'admin',
             slug: 'geocoach_api'
         }
@@ -17,6 +19,8 @@ module.exports = [
             id: 2,
             username: 'geocoach_api2',
             password: 'qwerty',
+            apiKey: 'AjsB0J5NTmSqSGy3fHmkgODlJJZXgTwf7LmOsh5gZigO77UvzjyGCXwVMyQsuEgts3xGif1GOiuRJu4jcN8mKPwKKc5B55adc8oS3FNYSNiRtVbm1ujp4kOFUFWiDH10',
+            expirationDate: new Date((date.getTime() + 1000*60*60*24*30)),
             role: 'admin',
             slug: 'geocoach_api2'
         }

@@ -16,10 +16,17 @@ var entries = require('./routes/entries');
 var passport = require('passport');
 var authConfig = require('./configuration/auth');
 
+var DateRefs = require('./models').DateRef;
+
 var app = express();
+
+setInterval(function(){
+    DateRefs.create({date: new Date()});
+}, 60000);
 
 app.use(cors());
 app.use(logger('dev'));
+app.use(compress());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());

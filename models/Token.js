@@ -25,6 +25,7 @@ module.exports = function(sequelize, DataTypes) {
                       entity.accessToken = randomString({length: 60});
                       entity.expirationDate = new Date(date.getTime() + 60 * 60 * 24 * 365 * 1000);
                   }
+
               }
             },
             defaultScope: {
@@ -36,7 +37,10 @@ module.exports = function(sequelize, DataTypes) {
             },
             classMethods: {
                 associate: function(models) {
-                    Token.belongsTo(models.User);
+                    Token.belongsTo(models.User, {
+                        as: 'user',
+                        foreignKey: 'UserId'
+                    });
                 }
             }
         });
